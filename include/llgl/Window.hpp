@@ -8,11 +8,12 @@ struct GLFWwindow;
 namespace llgl
 {
 
+
 class Window
 {
 public:
     Window(std::string name, Size size);
-    virtual ~Window() = default;
+    virtual ~Window();
 
     std::string getName() const;
     void setName(std::string name);
@@ -29,8 +30,8 @@ private:
     std::string name;
     Size size;
     Color color;
-    GLFWwindow* window;
 
+    GLFWwindow* window;
 };
 
 } // namespace llgl

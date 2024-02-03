@@ -1,19 +1,27 @@
 #include "llgl/Window.hpp"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 namespace llgl
 {
+
 
 Window::Window(std::string name, Size size)
 :name{std::move(name)}, size{size}, color{1.0, 1.0, 1.0}, window{nullptr}
 {
 }
 
+Window::~Window()
+{
+    if(this->window) glfwDestroyWindow(this->window);
+}
+
 bool Window::init()
 {
-    if(size.width <= 0 || size.height <= 0) return false;
-    this->window = glfwCreateWindow(size.width, size.height, name.c_str(), nullptr, nullptr);
+    if(this->size.width <= 0 || this->size.height <= 0) return false;
+    this->window = glfwCreateWindow(this->size.width, this->size.height
+        ,this->name.c_str(), nullptr, nullptr);
     if(this->window == nullptr) return false;
     glfwMakeContextCurrent(this->window);
     

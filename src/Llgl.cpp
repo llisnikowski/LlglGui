@@ -1,6 +1,8 @@
 #include "llgl/Llgl.hpp"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include "llgl/Object.hpp"
+#include <iostream>
 
 namespace llgl
 {
@@ -12,6 +14,9 @@ Llgl::Llgl()
 
 Llgl::~Llgl()
 {
+	for(auto &object : this->objects){
+		object.reset();
+	}
 	glfwTerminate();
 }
 
@@ -40,7 +45,12 @@ bool Llgl::glfwInit()
 
 bool Llgl::loadGlad()
 {
-	gladLoadGL();
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
 	return true;
 }
 
@@ -54,29 +64,35 @@ std::shared_ptr<Window> Llgl::getWindow()
 	return this->window;
 }
 
+void Llgl::add(std::shared_ptr<Object> obj)
+{
+	this->objects.push_back(obj);
+}
+
+
 int Llgl::run()
 {
 	if(!this->window) return 1;
-	if(!this->init()) return 2;
 
 	while (!glfwWindowShouldClose(this->window->getWindow()))
     {
+		if (glfwGetKey(this->window->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(this->window->getWindow(), true);
 
 		const Color &color = this->window->getBackgroundColor();
         glClearColor(color.r, color.g, color.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-	// 	for(auto &object : this->objects){
-	// 		auto objectLock = object.lock();
-	// 		if(objectLock == nullptr) continue;
-	// 		objectLock->draw();
-	// 	}
+		for(auto &object : this->objects){
+			if(object == nullptr) continue;
+			object->draw();
+		}
 
         glfwSwapBuffers(this->window->getWindow());
         glfwPollEvents();
-    }
+    }	
 
-	return true;
+	return 0;
 }
 
 

@@ -1,10 +1,12 @@
 #pragma once
 #include "llgl/Window.hpp"
 #include <memory>
+#include <vector>
 
 namespace llgl
 {
 class Window;
+class Object;
 
 class Llgl
 {
@@ -14,15 +16,19 @@ public:
 
     void setWindow(std::shared_ptr<Window> window);
     std::shared_ptr<Window> getWindow();
+
+    void add(std::shared_ptr<Object> obj);
+
     int run();
 
-private:
     bool init();
+private:
     bool glfwInit();
     bool loadGlad();
 
 
     std::shared_ptr<Window> window;
+    std::vector<std::shared_ptr<Object>> objects;
 };
 
 } // namespace llgl
