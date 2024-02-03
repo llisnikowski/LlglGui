@@ -5,6 +5,7 @@
 
 #include <string_view>
 #include <iostream>
+#include <llgl/Shader.hpp>
 
 const char* vert =
 R"vertex_shader(#version 450 core
@@ -95,10 +96,6 @@ RectObj::~RectObj()
 {
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
-    glDeleteProgramPipelines(1, &pipeline);
-    glDeleteProgram(vertexShader);
-    glDeleteProgram(geometryShader);
-    glDeleteProgram(fragmentShader);
 }
 
 
@@ -107,45 +104,15 @@ GLuint compileShader(const GLchar* _source, GLenum _stage, const std::string& _m
 
 bool RectObj::init()
 {
-    int success = 0;
-
-    vertexShader = glCreateShaderProgramv(GL_VERTEX_SHADER, 1, &vert);
-    glGetProgramiv(vertexShader, GL_LINK_STATUS, &success);
-    if (success == GL_FALSE)
-    {
-        std::string log;
-        log.resize(1024);
-        glGetProgramInfoLog(vertexShader, log.size(), nullptr, &log.front());
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << log << std::endl;
-        return false;
-    }
-
-    geometryShader = glCreateShaderProgramv(GL_GEOMETRY_SHADER, 1, &geom);
-    glGetProgramiv(geometryShader, GL_LINK_STATUS, &success);
-    if (success == GL_FALSE)
-    {
-        std::string log;
-        log.resize(1024);
-        glGetProgramInfoLog(geometryShader, log.size(), nullptr, &log.front());
-        std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << log << std::endl;
-        return false;
-    }
-
-    fragmentShader = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, &frag);
-    glGetProgramiv(fragmentShader, GL_LINK_STATUS, &success);
-    if (success == GL_FALSE)
-    {
-        std::string log;
-        log.resize(1024);
-        glGetProgramInfoLog(fragmentShader, log.size(), nullptr, &log.front());
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << log << std::endl;
-        return false;
-    }
-
-    glCreateProgramPipelines(1, &pipeline);
-    glUseProgramStages(pipeline, GL_VERTEX_SHADER_BIT, vertexShader);
-    glUseProgramStages(pipeline, GL_FRAGMENT_SHADER_BIT, fragmentShader);
-    glUseProgramStages(pipeline, GL_GEOMETRY_SHADER_BIT, geometryShader);
+    pipeline.addShader(std::make_shared<Shader>(Shader::Type::VERTEX
+        ,vert
+    ));
+    pipeline.addShader(std::make_shared<Shader>(Shader::Type::GEOMETRY
+        ,geom
+    ));
+    pipeline.addShader(std::make_shared<Shader>(Shader::Type::FRAGMENT
+        ,frag
+    ));
 
 
     float vertices[] = {
@@ -171,7 +138,6 @@ bool RectObj::init()
     glVertexArrayAttribBinding(vao, ATTR_COLOR, ATTR_COLOR);
 
 
-    glBindProgramPipeline(pipeline);
     glBindVertexArray(vao);
 
     return true;
@@ -185,7 +151,7 @@ bool RectObj::init()
 
 bool RectObj::draw()
 {
-
+    pipeline.bind();
     glBindVertexArray(vao);
     glDrawArrays(GL_POINTS, 0, 1);
 

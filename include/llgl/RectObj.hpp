@@ -2,6 +2,7 @@
 #include "llgl/Point.hpp"
 #include "llgl/Size.hpp"
 #include "llgl/Object.hpp"
+#include "llgl/Pipeline.hpp"
 
 namespace llgl
 {
@@ -24,10 +25,7 @@ private:
     Point point;
     Size size;
 
-    unsigned int pipeline{};
-    unsigned int vertexShader{};
-    unsigned int geometryShader{};
-    unsigned int fragmentShader{};
+    Pipeline pipeline;
     unsigned int vao{};
     unsigned int vbo{};
 };
